@@ -15,6 +15,17 @@ volatile int Rotary_Flag=0;     // flag to indicate rotation as occured
 #define RotaryDT 3    // Rotary encoder DT pin connected to pin 3
 #define RotarySW 4    // Rotary encoder Switch pin connected to pin 4
 
+// Button timing variables (added by SKZY for single and double clicks)
+int debounce = 50;          // ms debounce period to prevent flickering when pressing or releasing the button
+int DCgap = 500;            // max ms between clicks for a double click event
+
+// Button variables (added by SKZY - only added some parts from the reference page)
+boolean buttonVal = HIGH;   // value read from button
+boolean buttonLast = HIGH;  // buffered value of the button's previous state
+boolean DCwaiting = false;  // whether we're waiting for a double click (down)
+boolean DConUp = false;     // whether to register a double click on next release, or whether to wait and click
+boolean singleOK = true;    // whether it's OK to do a single click
+
 // HX711 Module connections
 #define CLK 5   // CLK of HX711 connected to pin 5 of Arduino
 #define DOUT 6  // DOUT of HX711 connected to pin 6 of Arduino
@@ -87,3 +98,74 @@ void setup(void) {
   }
 }
 
+void loop() {
+   // Get button event and act accordingly
+   int b = checkButton();
+   if (b == 1) Serial.println("single click");
+   if (b == 2) Serial.println("double click");
+}
+
+int checkButton() {    
+   int event = 0;
+   buttonVal = digitalRead(buttonPin);
+   // Button pressed down
+   if (buttonVal == LOW && buttonLast == HIGH && (millis() - upTime) > debounce)
+   {
+       downTime = millis();
+       ignoreUp = false;
+       waitForUp = false;
+       singleOK = true;
+       holdEventPast = false;
+       longHoldEventPast = false;
+       if ((millis()-upTime) < DCgap && DConUp == false && DCwaiting == true)  DConUp = true;
+       else  DConUp = false;
+       DCwaiting = false;
+   }
+   // Button released
+   else if (buttonVal == HIGH && buttonLast == LOW && (millis() - downTime) > debounce)
+   {        
+       if (not ignoreUp)
+       {
+           upTime = millis();
+           if (DConUp == false) DCwaiting = true;
+           else
+           {
+               event = 2;
+               DConUp = false;
+               DCwaiting = false;
+               singleOK = false;
+           }
+       }
+   }
+   // Test for normal click event: DCgap expired
+   if ( buttonVal == HIGH && (millis()-upTime) >= DCgap && DCwaiting == true && DConUp == false && singleOK == true && event != 2)
+   {
+       event = 1;
+       DCwaiting = false;
+   }
+   // Test for hold
+ /*  if (buttonVal == LOW && (millis() - downTime) >= holdTime) {
+       // Trigger "normal" hold
+       if (not holdEventPast)
+       {
+           event = 3;
+           waitForUp = true;
+           ignoreUp = true;
+           DConUp = false;
+           DCwaiting = false;
+           //downTime = millis();
+           holdEventPast = true;
+       }
+       // Trigger "long" hold
+       if ((millis() - downTime) >= longHoldTime)
+       {
+           if (not longHoldEventPast)
+           {
+               event = 4;
+               longHoldEventPast = true;
+           }
+       }
+   }*/
+   buttonLast = buttonVal;
+   return event;
+}
