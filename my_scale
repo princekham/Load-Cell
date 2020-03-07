@@ -1,3 +1,5 @@
+// Ref: https://www.makerguides.com/tm1637-arduino-tutorial/ 
+
 #include <Arduino.h>
 #include <TM1637Display.h>
 #include "HX711.h"
@@ -30,17 +32,18 @@ void setup() {
   // default "128" (Channel A) is used here.
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   
-  scale.set_scale(388450.f);                      // this value is obtained by calibrating the scale with known weights; see the README for details
+  scale.set_scale(383000.f);                      // this is inversely proportional to the output
   scale.tare();               // reset the scale to 0
   
   }
   void loop() {
+  display.setBrightness(0x0f);
   Serial.print("one reading:\t");
   Serial.print(scale.get_units(), 4);
   Serial.print("\t| average:\t");
-  Serial.println(scale.get_units(10), 4);
+  Serial.println(scale.get_units(3)*1000, 4);
+  delay(100);
   display.showNumberDec(scale.get_units(3)*1000, false, 4, 0); // for conversion to gram; take up 4 places
-  u8g.print(scale.get_units(3)*unit_conversion, decimal_place); 
-
+  
  
 }
