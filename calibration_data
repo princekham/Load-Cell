@@ -6,7 +6,7 @@
 #define DOUT  6  // Arduino pin 6 connect to HX711 DOUT
 #define CLK  5  //  Arduino pin 5 connect to HX711 CLK
  
-HX711 scale(DOUT, CLK);  // Init of library
+HX711 scale;  // Init of library
 
 void setup() {
   Serial.begin(9600);
