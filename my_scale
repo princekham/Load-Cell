@@ -32,7 +32,7 @@ void setup() {
   // default "128" (Channel A) is used here.
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   
-  scale.set_scale(383000.f);                      // this is inversely proportional to the output
+  scale.set_scale(384700.f);                      // this is inversely proportional to the output
   scale.tare();               // reset the scale to 0
   
   }
