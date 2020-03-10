@@ -12,6 +12,9 @@
 const int LOADCELL_DOUT_PIN = 6;
 const int LOADCELL_SCK_PIN = 5;
 
+// for press button
+const int buttonPin = 8;
+
 // The amount of time (in milliseconds) between tests
 #define TEST_DELAY   2000
 
@@ -20,6 +23,9 @@ HX711 scale;
 
 void setup() {
   Serial.begin(9600);
+  
+  pinMode(buttonPin, INPUT_PULLUP);
+  
   Serial.println("HX711 Demo");
 
   Serial.println("Initializing the scale");
@@ -34,6 +40,8 @@ void setup() {
   
   scale.set_scale(384700.f);                      // this is inversely proportional to the output
   scale.tare();               // reset the scale to 0
+  // Interrupt for button press for tare function
+  attachInterrupt(digitalPinToInterrupt(buttonPin),buttonPressed,RISING);  //  function for creating external interrupts at pin8 on Rising (LOW to HIGH)   
   
   }
   void loop() {
@@ -46,4 +54,7 @@ void setup() {
   display.showNumberDec(scale.get_units(3)*1000, false, 4, 0); // for conversion to gram; take up 4 places
   
  
+}
+buttonPressed(){
+
 }
