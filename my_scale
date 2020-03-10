@@ -13,7 +13,7 @@ const int LOADCELL_DOUT_PIN = 6;
 const int LOADCELL_SCK_PIN = 5;
 
 // for press button
-const int buttonPin = 8;
+const int buttonPin = 8; // for circuit diagram refer to https://www.electronicshub.org/arduino-interrupts-tutorial/
 
 // The amount of time (in milliseconds) between tests
 #define TEST_DELAY   2000
@@ -55,6 +55,7 @@ void setup() {
   
  
 }
+// tare the function when the button pressed
 buttonPressed(){
-
+ scale.tare(); 
 }
